@@ -1,0 +1,12 @@
+1- Quanto é 2+2?
+R:c
+
+2- Qual é o valor de PI?
+R:d
+
+3- Quanto é 2x4?
+R:a
+
+4- Quanto é 21-15?
+R:b
+
