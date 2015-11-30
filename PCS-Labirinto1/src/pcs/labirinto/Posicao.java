@@ -10,13 +10,13 @@ package pcs.labirinto;
  * @author Daniel
  */
 public class Posicao {  
-    int x;
-    int y;
+    double x;
+    double y;
     
-    public int getPosicaoX(){
+    public double getPosicaoX(){
         return x;
     }
-    public int getPosicaoY(){
+    public double getPosicaoY(){
         return y;
     }
     public void setPosicaoX(int NewX){
@@ -25,11 +25,11 @@ public class Posicao {
     public void setPosicaoY(int NewY){
         y = NewY;
     }      
-    public int posicaoXFinalLab(){
+    public double posicaoXFinalLab(){
         x = 78;
         return x;
     }
-    public int posicaoYFinalLab(){        
+    public double posicaoYFinalLab(){        
         y = 78;
         return y;
     }

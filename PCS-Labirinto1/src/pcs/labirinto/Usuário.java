@@ -5,6 +5,8 @@
  */
 package pcs.labirinto;
 
+import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import static java.lang.System.exit;
 import java.util.Scanner;
 
@@ -18,7 +20,14 @@ public class Usuário {
     String DisciplinaEscolhida = "";
     int DificuldadeEscolhida = 0;
     Scanner scan = new Scanner(System.in);
+    Posicao posicao = new Posicao();
+    public boolean[] key_states = new boolean[256];
 
+    public Usuário(){
+        
+        
+    }
+    
     public String escolheMateria() {
         System.out.println("Escolha uma disciplina:");
         System.out.println("M -- Matemática");
@@ -108,5 +117,24 @@ public class Usuário {
     }
 
     public void selecionaResposta() {
+    }
+    
+ 
+    
+   // @Override
+    public void update(double dt) {
+
+        if ((key_states[KeyEvent.VK_RIGHT]) && (posicao.x < 650)) {
+            posicao.x = posicao.x + (200 * dt);
+        }
+        if ((key_states[KeyEvent.VK_UP]) && (posicao.y > -40)) {
+            posicao.y = posicao.y - (200 * dt);
+        }
+        if ((key_states[KeyEvent.VK_LEFT]) && (posicao.x > -50)) {
+            posicao.x = posicao.x - (200 * dt);
+        }
+        if ((key_states[KeyEvent.VK_DOWN]) && (posicao.y < 450)) {
+            posicao.y = posicao.y + (200 * dt);
+        }
     }
 }

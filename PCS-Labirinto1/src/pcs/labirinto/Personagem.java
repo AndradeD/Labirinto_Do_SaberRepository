@@ -5,6 +5,8 @@
  */
 package pcs.labirinto;
 
+import java.awt.Graphics2D;
+
 /**
  *
  * @author Rafael
@@ -15,11 +17,11 @@ public class Personagem {
     Posicao posicao = new Posicao();
     public boolean ativo = true;
     
-     public int getPx (){
+     public double getPx (){
         return posicao.getPosicaoX();
     }
     
-     public int getPy (){
+     public double getPy (){
         return posicao.getPosicaoY();
     }
     
@@ -34,5 +36,8 @@ public class Personagem {
     
     public int verificaVida(){
        return vida;
+    }
+    
+     public void draw(Graphics2D g2d) {
     }
 }

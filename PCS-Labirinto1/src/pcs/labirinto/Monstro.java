@@ -15,11 +15,11 @@ public class Monstro {
     Personagem personagem = new Personagem();
     public boolean ativo = true;
     
-    public int getPx (){
+    public double getPx (){
         return posicao.getPosicaoX();
     }
     
-     public int getPy (){
+     public double getPy (){
         return posicao.getPosicaoY();
     }
     
