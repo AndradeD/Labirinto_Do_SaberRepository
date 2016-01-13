@@ -21,7 +21,7 @@ public class NewJFrame extends JFrame {
         setTitle("LabirintoDoSaber");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         add(new Labirinto());
-        setSize(800, 600);
+        setSize(1000, 900);
         setLocationRelativeTo(null);
         setResizable(false);
     }

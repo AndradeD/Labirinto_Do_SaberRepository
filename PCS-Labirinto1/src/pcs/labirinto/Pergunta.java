@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package pcs.labirinto;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -13,64 +12,79 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-
-
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.JOptionPane;
 /**
  *
  * @author Rafael
  */
-public class Pergunta {
-    final int F = -1;
-    final int M = 0;
-    final int D = 1;
-    String Displina;
-    int PosicaoLinha = 0;
+public final class Pergunta {
     
+    ArrayList<String> perguntas;
+    ArrayList<Character> respostas;
+    public String disciplina;
+    public int nivel;
+    public boolean respondida = false;
     
-    public char getPerguntaFacil(String disciplina)
+    Arquivo arq;
+    
+    public static void main(String[] args) throws IOException {   // temporário.
+        Pergunta perg = new Pergunta("M", -1);
+    }
+        
+    public Pergunta(String discpl, int nivel) throws IOException
     {
-        String filePerguntas = null;
-        String line = null;
-        char resp = 0;
-        
-        if (disciplina.toLowerCase().equals("m"))
-            filePerguntas = "C:\\Users\\Daniel\\Desktop\\PCS-Labirinto1\\build\\classes\\pcs\\labirinto\\PerguntasMat.txt";
-        
-        if (disciplina.toLowerCase().equals("h"))
-            filePerguntas = "C:\\Users\\Daniel\\Desktop\\PCS-Labirinto1\\build\\classes\\pcs\\labirinto\\PerguntasHist.txt";
-        
-        try {
-                // FileReader reads text files in the default encoding.
-                FileReader file = new FileReader(filePerguntas);
-
-                // Always wrap FileReader in BufferedReader.
-                BufferedReader bufferedReader = new BufferedReader(file);
-                while((line = bufferedReader.readLine()) != null) {
-                    if(line.startsWith("R")){
-                        resp = line.charAt(1);
-                        System.out.println(line.substring(1,line.length()));
-                    }else
-                    System.out.println(line);
-                }
-                // Always close files.
-                bufferedReader.close();         
-            }
-        
-        catch(FileNotFoundException e) {
-            System.out.println( "Erro pra abrir : '" +  filePerguntas + "'");                
-        }
-        catch(IOException ex) {System.out.println("Erro pra ler :'" + filePerguntas + "'");                  
-            // Or we could just do this: 
-            // ex.printStackTrace();
-        }
-        
-    return resp;
+        disciplina = discpl.toLowerCase();
+        this.nivel = nivel;
+        arq = new Arquivo(discpl, nivel);
+        montaPerguntas();
     }
     
-    public String getPerguntaMedio(String Disciplina){String ex = ""; return ex;}
+    public void montaPerguntas()
+    {
+        perguntas = new ArrayList<>();
+        respostas = new ArrayList<>();
+        for(String str : getPergunta(disciplina, nivel))
+            perguntas.add(str);
+        for(Character chr : getRespostas())
+            respostas.add(chr);
+    }
+  
+    public ArrayList<Character> getRespostas(){
+        
+       return arq.accessRespostas();
+    }
     
-    public String getPerguntaDificil(String Disciplina){String ex = ""; return ex;}
-    
-    
+    public ArrayList<String> getPergunta(String disc, int nivel) {
+        
+        if(disc == "m"){
+            if(nivel == -1)
+                return arq.accessPerguntasF();
+            else if (nivel == 0)
+                return arq.accessPerguntasM();
+            else if(nivel == 1)
+                return arq.accessPerguntasD();
+        }
+        else if(disc == "h"){
+            if(nivel == -1)
+                return arq.accessPerguntasF();
+            else if (nivel == 0)
+                return arq.accessPerguntasM();
+            else if(nivel == 1)
+                return arq.accessPerguntasD();
+        }
+        else if(disc == "g"){
+            if(nivel == -1)
+                return arq.accessPerguntasF();
+            else if (nivel == 0)
+                return arq.accessPerguntasM();
+            else if(nivel == 1)
+                return arq.accessPerguntasD();
+        }    
+        return null;
+    }
+ 
 }

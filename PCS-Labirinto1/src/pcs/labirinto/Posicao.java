@@ -13,6 +13,11 @@ public class Posicao {
     double x;
     double y;
     
+    public Posicao(double nx,double ny){
+        x = nx;
+        y = ny;
+    }
+    
     public double getPosicaoX(){
         return x;
     }

@@ -1,12 +1,28 @@
 package pcs.labirinto;
 
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
 import java.awt.Image;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ImageObserver;
+import java.awt.image.RenderedImage;
+import java.awt.image.renderable.RenderableImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,72 +32,46 @@ import pcs.labirinto.Usuário;
 
 import java.util.Scanner;
 import static java.lang.System.exit;
+import java.text.AttributedCharacterIterator;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class Labirinto extends JPanel implements Runnable{
+public class Labirinto extends JPanel implements Runnable {
 
-     Usuário usuario = new Usuário();
-     private Image fundo;
-     private boolean jogo = false;
-     private Font minhafonte = new Font("Arial", 0, 20);
-     Personagem personagem = new Personagem();
-     private Image[] vidaP = new Image[3];
-    
-   /* public static void main(String[] args) throws IOException {
-        int option = -1;
-        char menuoption;
-        String TipoMateria = "";
-        int Dificuldade = 0;
-        Pergunta pergunta = new Pergunta();
-        char respJ;
-        Respostas resposta = new Respostas();
-        Ranking rank = new Ranking();
-        Usuário usuario = new Usuário();
-        char respP = 0;
-        
-        Scanner ler = new Scanner(System.in);
+    private Usuário usuario;
+    private Image fundo;
+    private boolean jogo = false;
+    private boolean configurando = false;
+    private Font minhafonte = new Font("Arial", 0, 20);
+    Personagem personagem = new Personagem();
+    private Image[] vidaP = new Image[3];   
+    Parede parede = new Parede();
+    Rectangle rectanglePersonagem = new Rectangle(25,30);
+    Rectangle rectangleLabirinto = new Rectangle(100,100,949,855);
+    Ranking ranking = new Ranking();    
+    Pergunta pergunta;    
+    public String TipoMateria = "";
+    public int Dificuldade;
 
-        do{
-            menuoption = 0;
-            respJ = 0;
-            try{
-            System.out.println("Escolha uma opção:");
-            System.out.println("1 -- Jogar");
-            System.out.println("2 -- Ranking");
-            System.out.println("3 -- Sair");
-            option = ler.nextInt();
-            }catch(Exception ex){
-                System.out.println(ex.getMessage());
-            }
-                    if (option == 1) {    
-                       TipoMateria = usuario.escolheMateria();
-                       Dificuldade = usuario.escolheDificuldade();
-                        System.out.println("Iniciando partida fácil...");
-                        usuario.iniciaPartida(TipoMateria,Dificuldade);
-                    }else if (option == 3)
-                        usuario.finalizaAplicacao();
-                    else if (option == 2) {
-                     //   for (int i = 0; i <= rank.nome.size() - 1; i++) {
-                     //       System.out.println(rank.nome.get(i) + " : " + rank.ListaPontuacao.get(i));
-                    }
-                        System.out.println("Deseja voltar para o menu ? (s/n)");
-                        menuoption = ler.next().charAt(0);
-                                            
-        }while(menuoption == 's');
-    }*/
-    
-    
+
     private class KeyboardAdapter extends KeyAdapter {
 
         @Override
         public void keyReleased(KeyEvent e) {
+            personagem.key_states[e.getKeyCode()] = false;
             usuario.key_states[e.getKeyCode()] = false;
         }
 
         @Override
         public void keyPressed(KeyEvent e) {
+            personagem.key_states[e.getKeyCode()] = true;
             usuario.key_states[e.getKeyCode()] = true;
         }
     }
@@ -104,57 +94,101 @@ public class Labirinto extends JPanel implements Runnable{
         double btime, dtime = 0;
         btime = System.currentTimeMillis();
         while (true) {
-            update(dtime / 1000);
+            try {
+                update(dtime / 1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Labirinto.class.getName()).log(Level.SEVERE, null, ex);
+            }
             repaint();
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
             }
-            dtime = (System.currentTimeMillis() - btime);
+            dtime = System.currentTimeMillis() - btime;
             btime = System.currentTimeMillis();
         }
     }
-    
+
     private void load() {
-        fundo = new ImageIcon(this.getClass().getResource("preta.jpg")).getImage();
+        addKeyListener(new KeyboardAdapter());
+     //   fundo = new ImageIcon(this.getClass().getResource("preta.jpg")).getImage();
+        personagem = new Personagem();
+        usuario = new Usuário();     
     }
+
+    private void update(double dt) throws InterruptedException {
+             
+   
+        if (jogo == false){
+            if(usuario.key_states[KeyEvent.VK_N]) {
+            ConfiguraDisciplinaPartida();
+            ConfiguraDificuldadePartida();            
+            configurando = true;            
+            }
+        }
+        if (usuario.key_states[KeyEvent.VK_S]) {
+            System.exit(WIDTH);
+        } 
+        if (usuario.key_states[KeyEvent.VK_R]) {            
+                ranking.getNomesAndPontos(ranking.VetorNomes, ranking.VetorPontos);
+            try {
+                ranking.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Labirinto.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+        }        
+        else if (jogo) {                
+                    
+                if (personagem.verificaGameOver() == false) {
+                    if (personagem.controle){
+                    personagem.update(0,rectanglePersonagem,rectangleLabirinto,pergunta);
+                    }else
+                        personagem.update(dt,rectanglePersonagem,rectangleLabirinto,pergunta);                    
+                    
+                    if (usuario.key_states[KeyEvent.VK_ESCAPE])
+                    {
+                        //JPANEL COM OPCAO DE FECHAR O JOGO
+                        //if (opcao == true)
+                     //   {
+                           //System.exit(WIDTH);
+                        //}
+                    }                    
+                    personagem.TempoTotal++;
+                }else{
+                    ranking.TempoTotal = (int)personagem.GetTempoTotal();
+                    if (usuario.key_states[KeyEvent.VK_ESCAPE])
+                    {
+                        jogo = false;  
+                        usuario.key_states[KeyEvent.VK_N] = false;                        
+                    }
+                }
+            
+        }        
     
-    private void update(double dt) {
-        if (usuario.key_states[KeyEvent.VK_N]) {
-            jogo = true;
-        }
-        if (jogo)
-        {
-            
-            
-        }
     }
-    
+
     private void draw(Graphics g) {
 
         Graphics2D g2d = (Graphics2D) g;
         g2d.setFont(minhafonte);
-        if (jogo) {
-
-            if (personagem.verificaVida()== 3) {
-                g2d.drawImage(vidaP[0], 5, 5, null);
-                g2d.drawImage(vidaP[1], 45, 5, null);
-                g2d.drawImage(vidaP[2], 85, 5, null);
-            } else if (personagem.verificaVida()== 2) {
-                g2d.drawImage(vidaP[0], 5, 5, null);
-                g2d.drawImage(vidaP[1], 45, 5, null);
-            } else if (personagem.verificaVida()== 1) {
-                g2d.drawImage(vidaP[0], 5, 5, null);
-            }
+        if (jogo) {            
+            parede.draw(g2d);
+            g2d.drawImage(fundo, 0, 0,null);
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(""+personagem.TempoTotal, 600, 100);
             
-            if (personagem.verificaVida()> 0) {
+            if (personagem.verificaGameOver() == false) {
                 personagem.draw(g2d);
             } else {
-                g2d.drawString("GAME OVER", 400, 400);
+                g2d.drawString("GAME OVER", 400, 50);
+                g2d.drawString("Você escapou", 400, 70);               
+                
             }
-            
+
         } else {
+            g2d.drawImage(fundo, 0, 0, null);
             g2d.setColor(Color.BLACK);
             g2d.drawString("Labirinto do Saber", 250, 100);
             String str = "NOVO JOGO(Aperte N)";
@@ -167,4 +201,56 @@ public class Labirinto extends JPanel implements Runnable{
 
         }
     }
+    
+       
+      public void ConfiguraDisciplinaPartida() {
+        int IndexSelected = 0;
+        String[] list = new String[]{"Matematica", "Historia", "Geografia"};
+        IndexSelected = JOptionPane.showOptionDialog(
+                null, "Escolha uma disciplina", "Options", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,list,list[0]);
+        
+        if (IndexSelected == 0)
+         {
+             TipoMateria = "m";
+         }else
+         if (IndexSelected == 1)
+         {
+             TipoMateria = "h";
+         }else
+         if (IndexSelected == 2 || IndexSelected == -1)
+         {
+             TipoMateria = "g";
+         }
+                
+        
+    }
+
+    public void ConfiguraDificuldadePartida() {
+        int IndexSelected = 0;
+        String[] list = new String[]{"Fácil", "Médio", "Difícil"};
+        IndexSelected = JOptionPane.showOptionDialog(
+                null, "Escolha uma dificuldade", "Options", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,list,list[0]);
+         if (IndexSelected == 0)
+         {
+             Dificuldade = -1;
+         }else
+         if (IndexSelected == 1)
+         {
+             Dificuldade = 0;
+         }else
+         if (IndexSelected == 2 || IndexSelected == -1)
+         {
+             Dificuldade = 1;
+         }      
+            try {
+               pergunta = new Pergunta(TipoMateria,Dificuldade);
+             } catch (IOException ex) {
+                 Logger.getLogger(Labirinto.class.getName()).log(Level.SEVERE, null, ex);
+             }
+
+        if (!TipoMateria.equals("")) 
+        jogo = true;
+        
+    }
+    
 }
